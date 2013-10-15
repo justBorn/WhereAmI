@@ -1,56 +1,80 @@
 package com.whereami;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.TextView;
+
 import com.whereiam.R;
 
-import android.location.Location;
-import android.location.LocationManager;
-import android.os.Bundle;
-import android.os.Looper;
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.support.v4.content.LocalBroadcastManager;
-import android.telephony.SmsManager;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.Menu;
-import android.widget.Toast;
+public class MainActivity extends Activity {
 
-public class MainActivity extends Activity /*implements CommInt*/{
-	
-	String c = null;
+	private static final int RESULT_SETTINGS = 1;
+
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
-		c = getString(R.string.hello_world);
-		
+
+		showUserSettings();
 	}
-	
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
+		getMenuInflater().inflate(R.menu.settings, menu);
 		return true;
 	}
-	@Override
-	public void onResume() {
-	  super.onResume();
-
-
-	  };
-
 
 	@Override
-	protected void onPause() {
-	  super.onPause();
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+
+		case R.id.menu_settings:
+			Intent i = new Intent(this, UserSettingActivity.class);
+			
+			startActivityForResult(i, RESULT_SETTINGS);
+			break;
+
+		}
+
+		return true;
 	}
 
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
 
+		switch (requestCode) {
+		case RESULT_SETTINGS:
+			showUserSettings();
+			break;
 
+		}
+
+	}
+
+	private void showUserSettings() {
+		SharedPreferences sharedPrefs = PreferenceManager
+				.getDefaultSharedPreferences(this);
+
+		StringBuilder builder = new StringBuilder();
+
+		builder.append("\n Username: "
+				+ sharedPrefs.getString("prefUsername", "NULL"));
+
+		builder.append("\n Send report:"
+				+ sharedPrefs.getBoolean("prefSendReport", false));
+
+		builder.append("\n Sync Frequency: "
+				+ sharedPrefs.getString("prefSyncFrequency", "NULL"));
+
+		TextView settingsTextView = (TextView) findViewById(R.id.textUserSettings);
+
+		settingsTextView.setText(builder.toString());
+	}
 
 }
